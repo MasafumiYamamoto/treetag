@@ -13,17 +13,18 @@ def main(model_,bnum_,tnum_,train_,pas_):
 
 	#dictionary = corpora.Dictionary.load(pas+train+"_o4b"+str(bnum)+"t"+str(tnum)+".dict")
     #corpus = corpora.MmCorpus(pas+train+"_o4b"+str(bnum)+"t"+str(tnum)+".mm")
-	dictionary = corpora.Dictionary.load(pas+"model/nNVreviewpl.dict")
+	dictionary = corpora.Dictionary.load(pas+"over4/corpus/nNVrev_o4b6.dict")
 
 	#use LSI
 	#lsi = models.LsiModel.load(pas+train+"_o4b"+str(bnum)+"t"+str(tnum)+".lsi")
 	#if(model=="lda"):
 	#	lsi=models.LdaModel.load(pas+train+"_o4b"+str(bnum)+"t"+str(tnum)+".lda")
-	lsi = models.LsiModel.load(pas+"model/nNVreview500.lsi")
+	lsi = models.LsiModel.load(pas+"over4/model/nNVrevo4b6_t300.lsi")
 
 	#calc topic sim
 	header=[]
 	header.append("rev_id")
+	header.append("user_id")
 	header.append("bus_id")
 	header.append("stars")
 	header.append("sentnum")
@@ -45,6 +46,7 @@ def main(model_,bnum_,tnum_,train_,pas_):
 	for line in idata:
 		wlist=[]
 		wlist.append(line[0])
+		wlist.append(line[1])
 		wlist.append(line[2])
 		wlist.append(line[3])
 		wlist.append(line[6])###for revraw only
@@ -59,9 +61,9 @@ def main(model_,bnum_,tnum_,train_,pas_):
 		wlist=wlist+slist
 		writer.writerow(wlist)
 	        k=k+1
-		if(k%1000==900):
+		if(k%1000==0):
 			print k,time.ctime()
-			break
+
 	ifile.close()
 	wfile.close()
 	print "fin",time.ctime()
@@ -72,7 +74,7 @@ if __name__ == '__main__':
 	print "bnum"
 	bnum_=6
 	print "tnum"
-	tnum_=500
+	tnum_=300
 	print "train"
 	train_="nNVreview"
 	print "pas"
