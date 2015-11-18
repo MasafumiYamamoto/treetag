@@ -5,6 +5,7 @@ import collections
 import glob
 import os
 import numpy
+import gensim
 
 pas="D:/Lresult/model/test/"
 #os.mkdir(pas[:-1]+"_p")
