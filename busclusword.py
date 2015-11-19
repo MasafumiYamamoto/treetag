@@ -29,15 +29,35 @@ for line in idata:
 ifile.close()
 
 tflist=collections.Counter()
+wordlen=[]
+wordsum=collections.Counter()
 for t in range(0,10):
+    wordlen.append(len(wlist[t]))
+    wordsum[t]=sum(wlist[t].values())
     for w in wlist[t]:
         tflist[w]=tflist[w]+1
-#print tflist
+print wordlen,max(wordlen)
 
-wfile=open(pas+"/ks/busclusword/"+busname+".csv","wb")
+#wfile=open(pas+"/ks/busclusword/"+busname+".csv","wb")
+wfile=open(pas+"/ks/busclusword/hoge.csv","wb")
 writer=csv.writer(wfile)
+header=[]
+for num in map(str,range(0,10)):
+    header=header+["c"+num+"word","c"+num+"num","c"+num+"tfidf"]
+writer.writerow(header)
+for num in range(0,max(wordlen)):
+    wwlist=[]
+    for t in range(0,10):
+        if(len(wlist[t])<=num):
+            wwlist=wwlist+[" "," "," "]
+        else:
+            tmp=wlist[t].items()
+            wwlist.append(tmp[num][0])
+            wwlist.append(tmp[num][1])
+            wwlist.append(1.0*tmp[num][1]/wordsum[t]*numpy.log(10/tflist[tmp[num][0]]))
+    writer.writerow(wwlist)
+'''
 for t in wlist:
-    wordsum=sum(wlist[t].values())
     wwlist=["clus","word"]
     wwlist=wwlist+wlist[t].keys()
     writer.writerow(wwlist)
@@ -49,4 +69,7 @@ for t in wlist:
         wwlist.append(1.0*wlist[t][w]/wordsum*numpy.log(10/tflist[w]))
     writer.writerow(wwlist)
     #writer.writerow([t,"sum",wordsum])
+'''
+
+
 wfile.close()
