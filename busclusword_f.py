@@ -47,19 +47,25 @@ def main(cluster,fwords):
     writer=csv.writer(wfile)
     header=[]
     for num in map(str,range(0,cnum)):
-        header=header+["c"+num+"word","c"+num+"num","c"+num+"tfidf"]
+        header=header+["c"+num+"word","c"+num+"tfidf"]
     writer.writerow(header)
 
-    for num in range(0,max(wordlen)):
+    toplist=collections.Counter()
+    for t in range(0,cnum):
+        tmp=collections.Counter()
+        for w in wlist[t]:
+            tmp[w]=1.0*wlist[t][w]/wordsum[t]*numpy.log(1+1.0*cnum/tflist[w])
+        toplist[t]=tmp.most_common(fewords)
+
+    for num in range(0,cnum):
         wwlist=[]
-        for t in range(0,10):
+        for t in range(0,fewords):
             if(len(wlist[t])<=num):
-                wwlist=wwlist+["_",0,0]
+                wwlist=wwlist+["_",0]
             else:
-                tmp=wlist[t].items()
+                tmp=toplist[t]
                 wwlist.append(tmp[num][0])
                 wwlist.append(tmp[num][1])
-                wwlist.append(1.0*tmp[num][1]/wordsum[t]*numpy.log(1+10.0/tflist[tmp[num][0]]))
         writer.writerow(wwlist)
     wfile.close()
 
