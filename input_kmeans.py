@@ -33,7 +33,9 @@ stopfile.close()
 stopset=set(stoplist)
 print "stop fin",len(stoplist),time.ctime()
 
-ifile=open(pas+"/ks/testrev.csv","r")
+#ifile=open(pas+"/ks/bussent/_L1SVry9jDzk6VLz75Z6Ow.csv","r")
+busname="IjcKyB-LUnev2iapzyJ11w"
+ifile=open("//kaede/PPTShare/masafumi/musc/20151117/ks/bussent/"+busname+".csv","r")
 idata=csv.reader(ifile)
 idata.next()
 revlist=collections.Counter()
@@ -56,13 +58,13 @@ for line in idata:
 	#print revlist[line[0],line[6]]
 	revlist[line[0],line[6]]=revlist[line[0],line[6]]/rlen
 	#print revlist[line[0],line[6]]
-print len(revlist)/3
+#print len(revlist)/3
 
 kdata=numpy.array(revlist.values())
-kmeans_model=KMeans(n_clusters=len(revlist)/3,random_state=1).fit(kdata)
+kmeans_model=KMeans(n_clusters=10,random_state=1).fit(kdata)
 labels=kmeans_model.labels_
 
-wfile=open(pas+"/ks/busclus/"+line[2]+".csv","wb")
+wfile=open(pas+"/ks/busclus/"+busname+".csv","wb")
 writer=csv.writer(wfile)
 writer.writerow(["revid","sent","clus"])
 
