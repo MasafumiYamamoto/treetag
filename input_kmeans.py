@@ -36,16 +36,18 @@ def main(model_,topic,cluster):
 
 	#ifile=open(pas+"/ks/bussent/_L1SVry9jDzk6VLz75Z6Ow.csv","r")
 	busname="4bEjOyTaDG24SY5TxsaUNQ"
-	ifile=open("//kaede/PPTShare/masafumi/musc/20151117/ks/bussent/"+busname+".csv","r")
+	#ifile=open("//kaede/PPTShare/masafumi/musc/20151117/ks/topicmodeling/"+busname+".csv","r")
+	ifile=open(pas+"/ks/busent_anv/"+busname+".csv","r")
 	idata=csv.reader(ifile)
-	idata.next()
 	revlist=collections.Counter()###review cluster
 	revvec=collections.Counter()###review vector
 	revlen=collections.Counter()###length of review vector
 	n=0
 	for line in idata:
-		doc=textedit.textedit(line[5])
-		doc=doc.lower().split()
+		#print line
+		#doc=textedit.textedit(line[5])
+		#doc=doc.lower().split()
+		doc=line[5].lower().split()####review data
 		docset=set(doc)-stopset###remove stopwords
 		vec_bow = dictionary.doc2bow(docset)
 		vec_lmodel = lmodel[vec_bow]
@@ -59,12 +61,12 @@ def main(model_,topic,cluster):
 			revlist[line[0],line[6]]=revlist[line[0],line[6]]/rlen
 		#print revlist[line[0],line[6]]
 	ifile.close()
-
+	print "input fin"
 	##k-means
 	kdata=numpy.array(revlist.values())
 	kmeans_model=KMeans(n_clusters=cnum,random_state=1).fit(kdata)
 	labels=kmeans_model.labels_
-
+	print "k-means fin"
 	wfile=open(pas+"/ks/busclus/"+busname+".csv","wb")
 	writer=csv.writer(wfile)
 	writer.writerow(["revid","sent","clus"])

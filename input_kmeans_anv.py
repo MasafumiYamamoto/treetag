@@ -23,7 +23,8 @@ def main(model_,topic,cluster):
 
 	##load stoplist
 	stoplist=collections.Counter()
-	stopfile=open("D:/Lresult/stopwords/over8word.csv","r")
+	#stopfile=open("D:/Lresult/stopwords/over4word.csv","r")
+	stopfile=open("D:/Lresult/stopwords/stopwords_ranksnl.csv","r")
 	stopdata=csv.reader(stopfile)
 	for line in stopdata:
 		stoplist[line[0]]=1
@@ -38,16 +39,21 @@ def main(model_,topic,cluster):
 
 	#ifile=open(pas+"/ks/bussent/_L1SVry9jDzk6VLz75Z6Ow.csv","r")
 	busname="4bEjOyTaDG24SY5TxsaUNQ"
+	#busname="ucy9SlJYtqL2NSK-9ffz9g"
+
 	ifile=open("//kaede/PPTShare/masafumi/musc/20151117/ks/bussent/"+busname+".csv","r")
 	idata=csv.reader(ifile)
 	idata.next()
 	revlist=collections.Counter()###review cluster
 	revvec=collections.Counter()###review vector
 	revlen=collections.Counter()###length of review vector
-	anv=["JJ","JJR","JJS","NN","NNS","VB","VBD","VBG","VBN","VBP","VBZ"]###append list
+	anv=["JJ","JJR","JJS","NN","NNS","VV","VVD","VVG","VVN","VVP","VVZ"]###append list
 
 	n=0
 	for line in idata:
+		n=n+1
+		if(n%100==0):
+			print n,time.ctime()
 		#doc=textedit.textedit(line[5])
 		#doc=doc.lower().split()
 		tgs=tagger.TagText(line[5])

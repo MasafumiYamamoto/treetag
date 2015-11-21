@@ -1,4 +1,4 @@
-
+###write top fwords
 
 def main(cluster,fwords):
     import csv
@@ -6,6 +6,7 @@ def main(cluster,fwords):
     import collections
     import textedit
     import numpy
+    import time
 
     busname="4bEjOyTaDG24SY5TxsaUNQ"
     pas="D:/Lresult"
@@ -21,17 +22,19 @@ def main(cluster,fwords):
         ####revid,sentiment_num,clus
         cluslist[line[0],line[1]]=int(line[2])
     ifile.close()
-    ifile=open(pas2+"/ks/bussent/"+busname+".csv","r")
+    ifile=open(pas+"/ks/busent_anv/"+busname+".csv","r")
     idata=csv.reader(ifile)
     wlist=collections.Counter()####word dictionary for each cluster
     for num in range(0,cnum):
         wlist[num]=collections.Counter()
     for line in idata:
-        doc=textedit.textedit(line[5])
-        doc=doc.split()
+        #doc=textedit.textedit(line[5])
+        #doc=doc.split()
+        doc=line[5].lower().split()
         for t in doc:
             wlist[cluslist[line[0],line[6]]][t]=wlist[cluslist[line[0],line[6]]][t]+1
     ifile.close()
+    print "input fin",time.ctime()
 
     tflist=collections.Counter()
     wordlen=[]
@@ -50,6 +53,8 @@ def main(cluster,fwords):
         header=header+["c"+num+"word","c"+num+"tfidf"]
     writer.writerow(header)
 
+    fewords=max(wordlen)
+    print fewords
     toplist=collections.Counter()
     for t in range(0,cnum):
         tmp=collections.Counter()
@@ -57,17 +62,17 @@ def main(cluster,fwords):
             tmp[w]=1.0*wlist[t][w]/wordsum[t]*numpy.log(1+1.0*cnum/tflist[w])
         toplist[t]=tmp.most_common(fewords)
 
-    for num in range(0,cnum):
-        wwlist=[]
-        for t in range(0,fewords):
+    for num in range(0,fewords):
+        wrlist=[]
+        for t in range(0,cnum):
             if(len(wlist[t])<=num):
-                wwlist=wwlist+["_",0]
+                wrlist=wrlist+["_",0]
             else:
                 tmp=toplist[t]
-                wwlist.append(tmp[num][0])
-                wwlist.append(tmp[num][1])
-        writer.writerow(wwlist)
-    wfile.close()
+                wrlist.append(tmp[num][0])
+                wrlist.append(tmp[num][1])
+        writer.writerow(wrlist)
+    print "fin",time.ctime()
 
 if __name__ == '__main__':
     print "cluster_num,feature_words"
