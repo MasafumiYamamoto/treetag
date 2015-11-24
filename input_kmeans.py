@@ -16,7 +16,7 @@ def main(model_,topic,cluster):
 	cnum=int(cluster)
 
 	####prepare model
-	lmodel=gensim.models.LdaModel.load(pas+"/model/"+model+"model/NVreview_o4b6t"+str(tnum)+"."+model)
+	lmodel=gensim.models.LsiModel.load(pas+"/model/"+model+"model/NVreview_o4b6t"+str(tnum)+"."+model)
 	dictionary=gensim.corpora.Dictionary.load(pas+"/model/dict/NVreview_o4b6.dict")
 
 	##load stoplist
@@ -39,42 +39,62 @@ def main(model_,topic,cluster):
 	#ifile=open("//kaede/PPTShare/masafumi/musc/20151117/ks/topicmodeling/"+busname+".csv","r")
 	ifile=open(pas+"/ks/busent_anv/"+busname+".csv","r")
 	idata=csv.reader(ifile)
-	revlist=collections.Counter()###review cluster
+	revlist_p=collections.Counter()###review cluster positive
+	revlist_n=collections.Counter()###review cluster negative
 	revvec=collections.Counter()###review vector
 	revlen=collections.Counter()###length of review vector
 	n=0
 	for line in idata:
-		#print line
-		#doc=textedit.textedit(line[5])
-		#doc=doc.lower().split()
-		doc=line[5].lower().split()####review data
-		docset=set(doc)-stopset###remove stopwords
-		vec_bow = dictionary.doc2bow(docset)
-		vec_lmodel = lmodel[vec_bow]
-		rlen=0
-		revlist[line[0],line[6]]=[0]*tnum
-		for num in range(0,len(vec_lmodel)):
-			rlen=rlen+vec_lmodel[num][1]*vec_lmodel[num][1]
-			revlist[line[0],line[6]][vec_lmodel[num][0]]=vec_lmodel[num][1]
-		rlen=numpy.sqrt(rlen)
-		if(rlen!=0):
-			revlist[line[0],line[6]]=revlist[line[0],line[6]]/rlen
-		#print revlist[line[0],line[6]]
+		if(int(line[3])>3):###use only positive review
+			doc=line[5].lower().split()####review data
+			docset=set(doc)-stopset###remove stopwords
+			vec_bow = dictionary.doc2bow(docset)
+			vec_lmodel = lmodel[vec_bow]
+			rlen=0
+			revlist_p[line[0],line[6]]=[0]*tnum
+			for num in range(0,len(vec_lmodel)):
+				rlen=rlen+vec_lmodel[num][1]*vec_lmodel[num][1]
+				revlist_p[line[0],line[6]][vec_lmodel[num][0]]=vec_lmodel[num][1]
+			rlen=numpy.sqrt(rlen)
+			if(rlen!=0):
+				revlist_p[line[0],line[6]]=revlist_p[line[0],line[6]]/rlen
+		elif(int(line[3])<3):
+			doc=line[5].lower().split()####review data
+			docset=set(doc)-stopset###remove stopwords
+			vec_bow = dictionary.doc2bow(docset)
+			vec_lmodel = lmodel[vec_bow]
+			rlen=0
+			revlist_n[line[0],line[6]]=[0]*tnum
+			for num in range(0,len(vec_lmodel)):
+				rlen=rlen+vec_lmodel[num][1]*vec_lmodel[num][1]
+				revlist_n[line[0],line[6]][vec_lmodel[num][0]]=vec_lmodel[num][1]
+			rlen=numpy.sqrt(rlen)
+			if(rlen!=0):
+				revlist_n[line[0],line[6]]=revlist_n[line[0],line[6]]/rlen
 	ifile.close()
-	print "input fin"
+	print "input fin",len(revlist_p),len(revlist_n),time.ctime()
+
 	##k-means
-	kdata=numpy.array(revlist.values())
-	kmeans_model=KMeans(n_clusters=cnum,random_state=1).fit(kdata)
-	labels=kmeans_model.labels_
-	print "k-means fin"
-	wfile=open(pas+"/ks/busclus/"+busname+".csv","wb")
+	kdata_p=numpy.array(revlist_p.values())
+	kmeans_model_p=KMeans(n_clusters=cnum,random_state=1).fit(kdata_p)
+	labels_p=kmeans_model_p.labels_
+	kdata_n=numpy.array(revlist_n.values())
+	kmeans_model_n=KMeans(n_clusters=cnum,random_state=1).fit(kdata_n)
+	labels_n=kmeans_model_n.labels_
+
+	print "k-means fin",time.ctime()
+	wfile=open(pas+"/ks/busclus/"+busname+"_clus.csv","wb")
 	writer=csv.writer(wfile)
 	writer.writerow(["revid","sent","clus"])
-	for num in range(0,len(revlist)):
-		writer.writerow(list(revlist.keys()[num])+[labels[num]])
+	tmp=revlist_p.keys()
+	for num in range(0,len(tmp)):
+		writer.writerow(list(tmp[num])+[labels_p[num]+1])
+	tmp=revlist_n.keys()
+	for num in range(0,len(tmp)):
+		writer.writerow(list(tmp[num])+[-1*labels_n[num]-1])
 	wfile.close()
 	print "fin",time.ctime()
 
 if __name__ == '__main__':
 	print "lmodel","topic_num","cluster_num"
-	main("lda",500,10)
+	main("lsi",500,10)
